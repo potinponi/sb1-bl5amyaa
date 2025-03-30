@@ -1,4 +1,3 @@
-import React from 'react';
 import { useState } from 'react';
 import { ProactiveMessagesSection } from '../../components/ChatbotBuilder/FlowEditor/ProactiveMessagesSection';
 import { SmartProactiveMessages } from './SmartProactiveMessages';
@@ -6,7 +5,7 @@ import { Preview } from '../../components/ChatbotBuilder/Preview';
 import { storage } from '../../lib/firebase';
 import { Info, Lightbulb } from 'lucide-react';
 import { ProactiveMessagesSidebar } from './ProactiveMessagesSidebar';
-import { useRef, useEffect, useCallback } from 'react';
+import { useRef, useEffect } from 'react';
 import type { DraggableEventHandler } from 'react-draggable';
 
 interface ProactiveMessagesProps {

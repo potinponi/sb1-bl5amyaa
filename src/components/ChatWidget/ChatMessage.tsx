@@ -1,4 +1,3 @@
-import React from 'react';
 import { Message, Theme } from '../../types';
 import { Bot, User } from 'lucide-react';
 

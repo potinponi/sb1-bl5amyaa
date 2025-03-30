@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Palette, Upload, X, Bot, User, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { storage } from '../../lib/firebase';
@@ -34,7 +34,8 @@ const defaultTheme = {
   userTextColor: '#000000',
   headerTextColor: '#ffffff',
   fontFamily: 'system-ui',
-  borderRadius: '0.5rem'
+  borderRadius: '0.5rem',
+  showMessageIcons: true
 };
 
 const MAX_FILE_SIZE = 1024 * 1024; // 1MB
@@ -209,11 +210,12 @@ export function ThemeCustomizer({
                           if (e.target.checked) {
                             return {
                               ...prev,
+                              showMessageIcons: prev.showMessageIcons,
                               gradient: defaultGradient
                             };
                           } else {
                             const { gradient, ...rest } = prev;
-                            return rest;
+                            return { ...rest, showMessageIcons: prev.showMessageIcons };
                           }
                         });
                       }}

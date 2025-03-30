@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ThumbsUp, ThumbsDown, X, Loader2 } from 'lucide-react';
 import type { Theme } from '../../types';
 

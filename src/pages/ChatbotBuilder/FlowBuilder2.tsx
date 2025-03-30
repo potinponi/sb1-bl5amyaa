@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Draggable from 'react-draggable';
 import { useNavigate } from 'react-router-dom';
 import { Plus, Minus, RotateCcw, MessageCircle, Settings, ArrowRight, Eye, EyeOff, Calendar, X } from 'lucide-react';

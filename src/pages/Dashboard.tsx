@@ -56,7 +56,7 @@ export default function Dashboard() {
   };
 
   const fetchStats = async () => {
-    try {
+   try {
       if (!user?.id) return;
 
       const q = query(
@@ -110,7 +110,7 @@ export default function Dashboard() {
       <div className="mt-10">
       <h1 className="text-2xl font-bold text-gray-100 mb-6">Dashboard</h1>
       
-      {status === 'expired' && (
+      {status === 'expired' && ( // Modified this line
         <div className="mb-8 p-6 bg-red-500/10 border border-gray-400/10 rounded-lg">
           <h2 className="text-lg font-medium text-red-400 mb-2">Trial Period Expired</h2>
           <p className="text-gray-400 mb-4">

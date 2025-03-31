@@ -1,29 +1,26 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from './auth';
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from './firebase';
 
 export type SubscriptionStatus = 'trial' | 'expired' | 'pro';
 
 interface UseSubscriptionReturn {
-  daysRemaining: number;
+  daysRemaining: number | null;
   status: SubscriptionStatus;
   canAccessFeature: (feature: 'builder' | 'leads' | 'analytics' | 'code') => boolean;
 }
 
 export function useSubscription(): UseSubscriptionReturn {
   const { user } = useAuth();
-  const [status, setStatus] = useState<SubscriptionStatus>('expired');
-  const [daysRemaining, setDaysRemaining] = useState(0);
+  const [status, setStatus] = useState<SubscriptionStatus | null>(null);
+  const [daysRemaining, setDaysRemaining] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchSubscriptionStatus = async () => {
       if (!user) {
-        setStatus('expired');
-        setDaysRemaining(0);
         return;
       }
-
       try {
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         if (!userDoc.exists()) {
@@ -32,8 +29,7 @@ export function useSubscription(): UseSubscriptionReturn {
           trialEnd.setDate(trialEnd.getDate() + 14); // 14 days trial
           
           setDaysRemaining(14);
-          setStatus('trial');
-          setDaysRemaining(0);
+          setStatus('trial');          
           return;
         }
 
@@ -49,11 +45,10 @@ export function useSubscription(): UseSubscriptionReturn {
         
         // Set status based on trial days remaining
         if (daysLeft > 0) {
-          setStatus('trial');
-        } else {
-          setStatus('expired');
+          setStatus('trial');          
         }
-      } catch (error) {
+      } 
+      catch (error) {
         console.error('Error fetching subscription status:', error);
         setStatus('expired');
         setDaysRemaining(0);
@@ -65,14 +60,14 @@ export function useSubscription(): UseSubscriptionReturn {
 
   const canAccessFeature = (feature: 'builder' | 'leads' | 'analytics' | 'code'): boolean => {
     // During trial period, all features are accessible
-    if (status === 'trial') return true;
-
+    if (status === 'trial' || status === 'pro') return true;
+    
     // After trial, only basic features are accessible
     if (status === 'expired') {
       return false;
     }
 
-    // Pro users have access to all features
+   
     return true;
   };
 

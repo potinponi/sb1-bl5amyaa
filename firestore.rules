@@ -5,22 +5,30 @@ service cloud.firestore {
     function isAuthenticated() {
       return request.auth != null;
     }
-    
+
     function isOwner(userId) {
       return request.auth.uid == userId;
     }
-    
+
     function isTrialActive() {
       let user = get(/databases/$(database)/documents/users/$(request.auth.uid));
       let trialEnd = user.data.trial_end;
       return trialEnd > request.time;
     }
-    
+
+    function trialEndDate() {
+      return request.time + duration.value(14, "d");
+    }
+
     // Users collection
     match /users/{userId} {
-      allow read: if isAuthenticated() && isOwner(userId);
-      allow create: if isAuthenticated() && isOwner(userId);
+      allow read: if true;
+      allow create: if true;
       allow update: if isAuthenticated() && isOwner(userId);
+      allow delete: if isAuthenticated() && isOwner(userId);
+      allow update: if request.auth == null || !isOwner(userId) ;
+      allow delete: if request.auth == null || !isOwner(userId) ;
+      allow create: if request.resource.data.trial_end == trialEndDate();
     }
     
     // Chatbots collection

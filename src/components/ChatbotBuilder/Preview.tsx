@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChatWidget } from '../ChatWidget/ChatWidget';
-import { useEffect } from 'react';
+import { db } from '../../lib/firebase';
+import { doc, onSnapshot } from 'firebase/firestore';
 import type { Theme, Option } from '../../types';
 
 interface PreviewProps {
@@ -21,6 +22,7 @@ interface PreviewProps {
     options: Option[];
   };
   theme: Theme;
+  defaultOpen?: boolean;
 }
 
 export function Preview({
@@ -30,6 +32,31 @@ export function Preview({
   theme,
   defaultOpen = true
 }: PreviewProps) {
+  const [liveConfig, setLiveConfig] = useState(previewFlow);
+
+  useEffect(() => {
+    if (chatbotId === '00000000-0000-0000-0000-000000000000') {
+      // Preview mode, use props directly
+      setLiveConfig(previewFlow);
+      return;
+    }
+
+    // Subscribe to real-time updates
+    const unsubscribe = onSnapshot(
+      doc(db, 'widget_configs', chatbotId),
+      (doc) => {
+        if (doc.exists()) {
+          setLiveConfig(doc.data().flow);
+        }
+      },
+      (error) => {
+        console.error('Error getting live config:', error);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [chatbotId, previewFlow]);
+
   // Load fonts when theme changes
   useEffect(() => {
     const loadFont = (fontFamily: string) => {
@@ -65,10 +92,7 @@ export function Preview({
       <ChatWidget 
         chatbotId={chatbotId}
         chatbotName={chatbotName}
-        previewFlow={{
-          ...previewFlow,
-          showEndScreen: previewFlow.showEndScreen
-        }}
+        previewFlow={liveConfig}
         theme={theme}
         defaultOpen={defaultOpen}
       />

@@ -85,16 +85,6 @@ export function Register() {
           <h2 className="mt-6 text-3xl font-bold text-gray-100">
             Start your 14-day free trial
           </h2>
-          <div className="mt-2 flex justify-center space-x-2">
-            {[1, 2, 3].map((s) => (
-              <div
-                key={s}
-                className={`w-2.5 h-2.5 rounded-full transition-colors ${
-                  s === step ? 'bg-brand' : 'bg-gray-600'
-                }`}
-              />
-            ))}
-          </div>
           {showVerificationPopup ? (
             <div className="mt-8 p-6 bg-brand/10 rounded-lg border border-brand/20">
               <h3 className="text-xl font-medium text-brand mb-2">
@@ -114,9 +104,21 @@ export function Register() {
               </Link>
             </div>
           ) : (
-          <p className="mt-2 text-gray-400">
-            No credit card required
-          </p>
+          <div>
+            <p className="mt-2 text-gray-400">
+              No credit card required
+            </p>
+            <div className="mt-2 flex justify-center space-x-2">
+              {[1, 2, 3].map((s) => (
+                <div
+                  key={s}
+                  className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                    s === step ? 'bg-brand' : 'bg-gray-600'
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
           )}
         </div>
 
@@ -229,11 +231,13 @@ export function Register() {
                     text-gray-100 focus:outline-none focus:ring-brand focus:border-brand"
                 >
                   <option value="">Select company size</option>
-                  <option value="1-10">1-10 employees</option>
-                  <option value="11-50">11-50 employees</option>
-                  <option value="51-200">51-200 employees</option>
-                  <option value="201-500">201-500 employees</option>
-                  <option value="501+">501+ employees</option>
+                  <option value="1-5">1-5 employees</option>
+                  <option value="5-10">5-10 employees</option>
+                  <option value="20-50">20-50 employees</option>
+                  <option value="50-100">50-100 employees</option>
+                  <option value="100-200">100-200 employees</option>
+                  <option value="200-500">200-500 employees</option>
+                  <option value="500+">500+ employees</option>
                 </select>
               </div>
             </>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Code, Save, Loader2, Settings, MessageSquarePlus, BellRing } from 'lucide-react'; 
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
+import { useSubscription } from '../lib/subscription';
 import { db } from '../lib/firebase';
 import { collection, query, where, getDocs, orderBy, limit, doc, setDoc, getDoc } from 'firebase/firestore';
 import { generateWidgetBundle } from '../lib/widget';
@@ -13,6 +14,7 @@ import { ProactiveMessages } from './ChatbotBuilder/ProactiveMessages';
 export default function ChatbotBuilder() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { loading: subscriptionLoading } = useSubscription();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -98,8 +100,7 @@ export default function ChatbotBuilder() {
         // Then get the latest flow configuration
         const flowQuery = query(
           collection(db, 'flows'),
-          where('chatbot_id', '==', user.uid),
-          orderBy('created_at', 'desc'),
+          where('user_id', '==', user.uid),
           limit(1)
         );
         
@@ -118,10 +119,10 @@ export default function ChatbotBuilder() {
       }
     };
 
-    if (user?.id) {
+    if (user?.uid) {
       loadConfig();
     }
-  }, [user?.id]);
+  }, [user?.uid]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -148,8 +149,7 @@ export default function ChatbotBuilder() {
       // Save flow configuration
       const flowRef = doc(collection(db, 'flows'));
       await setDoc(flowRef, {
-        id: flowRef.id,
-        chatbot_id: user.uid,
+        id: flowRef.id, 
         user_id: user.uid,
         data: {
           welcomeMessage,
@@ -185,6 +185,14 @@ export default function ChatbotBuilder() {
       setSaving(false);
     }
   };
+
+  if (loading || subscriptionLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-brand" />
+      </div>
+    );
+  }
 
   return (
     <>

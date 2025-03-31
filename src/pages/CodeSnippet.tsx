@@ -3,6 +3,8 @@ import { Copy, Check } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 
+type InstallMethod = 'javascript' | 'npm' | 'react';
+
 interface LocationState {
   flow?: {
     welcomeMessage: string;
@@ -14,14 +16,21 @@ interface LocationState {
 
 export default function CodeSnippet() {
   const [copied, setCopied] = useState<'main' | 'smart' | 'theme' | null>(null);
+  const [activeMethod, setActiveMethod] = useState<InstallMethod>('javascript');
   const location = useLocation();
   const { flow } = location.state as LocationState || {};
+  const instructions = {
+    javascript: 'Add this script to your HTML file just before the closing </body> tag.',
+    npm: 'Install the package and initialize it in your Node.js application.',
+    react: 'Install the package and add the component to your React application.'
+  };
   const navigate = useNavigate();
   const { user } = useAuth();
   const chatbotId = 'a54a2bd1-cf6a-4af7-8435-c256c10794e7';
   const widgetUrl = `https://ziuyjhndicmqxhetyxux.supabase.co/storage/v1/object/public/widget-files/${chatbotId}/widget`;
 
-  const snippet = `<!-- Add the chatbot widget -->
+  const snippets = {
+    javascript: `<!-- Add the chatbot widget -->
 <script>
   window.chatdashSettings = {
     url: "https://ziuyjhndicmqxhetyxux.supabase.co",
@@ -29,7 +38,32 @@ export default function CodeSnippet() {
   };
 </script>
 
-<script src="${widgetUrl}" async></script>`;
+<script src="${widgetUrl}" async></script>`,
+    npm: `// Install the package
+npm install @chattibot/widget
+
+// Initialize in your app
+import { ChatWidget } from '@chattibot/widget';
+
+ChatWidget.init({
+  url: "https://ziuyjhndicmqxhetyxux.supabase.co",
+  chatbotId: "${chatbotId}"
+});`,
+    react: `// Install the package
+npm install @chattibot/react
+
+// Add to your React app
+import { ChatWidget } from '@chattibot/react';
+
+function App() {
+  return (
+    <ChatWidget
+      url="https://ziuyjhndicmqxhetyxux.supabase.co"
+      chatbotId="${chatbotId}"
+    />
+  );
+}`
+  };
 
 
   useEffect(() => {
@@ -39,20 +73,61 @@ export default function CodeSnippet() {
   }, [chatbotId, location.state, navigate]);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(snippet.trim());
+    navigator.clipboard.writeText(snippets[activeMethod].trim());
     setCopied('main');
     setTimeout(() => setCopied(null), 2000);
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-xl mx-auto">
       <h1 className="text-2xl font-bold text-gray-100 mb-6">Installation</h1>
       <div className="bg-dark-800 rounded-lg shadow-lg border border-gray-800 overflow-hidden">
-        <div className="p-4 border-b border-gray-800 flex justify-between items-center">
-          <h2 className="text-lg font-medium text-gray-100">Add to your website</h2>
+        <div className="border-b border-gray-800">
+          <div className="flex">
+            <button
+              onClick={() => setActiveMethod('javascript')}
+              className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px
+                ${activeMethod === 'javascript'
+                  ? 'border-brand text-brand'
+                  : 'border-transparent text-gray-400 hover:text-gray-300'
+                }`}
+            >
+              JavaScript
+            </button>
+            <button
+              onClick={() => setActiveMethod('npm')}
+              className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px
+                ${activeMethod === 'npm'
+                  ? 'border-brand text-brand'
+                  : 'border-transparent text-gray-400 hover:text-gray-300'
+                }`}
+            >
+              NPM Package
+            </button>
+            <button
+              onClick={() => setActiveMethod('react')}
+              className={`px-4 py-3 text-sm font-medium transition-colors border-b-2 -mb-px
+                ${activeMethod === 'react'
+                  ? 'border-brand text-brand'
+                  : 'border-transparent text-gray-400 hover:text-gray-300'
+                }`}
+            >
+              React
+            </button>
+          </div>
+        </div>
+        <div className="p-4 border-b border-gray-800 bg-dark-900/50">
+          <p className="text-sm text-gray-400 mb-2">{instructions[activeMethod]}</p>
+        </div>
+        
+        <div className="p-4 bg-dark-900">
+          <pre className="text-gray-300 font-mono text-sm whitespace-pre-wrap overflow-x-auto mb-4 p-4 bg-dark-800 rounded-lg border border-gray-700">
+            {snippets[activeMethod]}
+          </pre>
+          
           <button 
             onClick={handleCopy}
-            className="flex items-center space-x-2 px-3 py-1.5 bg-brand text-black rounded-md 
+            className="flex items-center space-x-2 px-3 py-1.5 bg-brand text-black rounded-md w-full justify-center
               hover:bg-brand/90 transition-colors"
           >
             {copied === 'main' ? (
@@ -67,57 +142,6 @@ export default function CodeSnippet() {
               </>
             )}
           </button>
-        </div>
-        
-        <div className="p-4 bg-dark-900">
-          <pre className="text-gray-300 font-mono text-sm whitespace-pre-wrap overflow-x-auto">
-            {snippet}
-          </pre>
-        </div>
-      </div>
-
-      <div className="mt-8 space-y-4">
-        <h2 className="text-xl font-medium text-gray-100">Instructions</h2>
-        <ol className="list-decimal list-inside space-y-2 text-gray-300">
-          <li>Copy the entire widget code snippet</li>
-          <li>Add the stylesheet link to your HTML <code>&lt;head&gt;</code> section</li>
-          <li>Add the initialization script just before the closing <code>&lt;/body&gt;</code> tag</li>
-          <li>The script will automatically load required dependencies if they're not already present</li>
-          <li>The chat widget will automatically appear in the bottom right corner</li>
-          <li>Customize the theme settings to match your website's design</li>
-        </ol>
-        
-        
-        <div className="p-4 bg-dark-700 rounded-lg border border-gray-800 mt-4">
-          <h3 className="text-lg font-medium text-gray-100 mb-2">Important Notes</h3>
-          <ul className="space-y-2 text-gray-300">
-            <li>• Lightweight and optimized</li>
-            <li>• Automatically handles dependencies</li>
-            <li>• Smart proactive messages support built-in</li>
-            <li>• Works with existing React installations</li>
-            <li>• Automatically syncs with your chatbot configuration</li>
-            <li>• Real-time lead capture</li>
-            <li>• Feedback collection</li>
-            <li>• Loads asynchronously</li>
-            <li>• Works offline-first with data sync</li>
-            <li>• Compatible with all modern browsers</li>
-            <li>• No jQuery required</li>
-            <li>• Served from Netlify's global CDN</li>
-            <li>• Automatic error handling and retries</li>
-            <li>• Customizable appearance and behavior</li>
-            <li>• Mobile-responsive design</li>
-          </ul>
-        </div>
-        
-        <div className="p-4 bg-dark-700 rounded-lg border border-gray-800 mt-4">
-          <h3 className="text-lg font-medium text-gray-100 mb-2">Troubleshooting</h3>
-          <ul className="space-y-2 text-gray-300">
-            <li>• Make sure both the CSS and JS files are loading correctly (check browser console)</li>
-            <li>• Verify the script is placed before the closing body tag</li>
-            <li>• Ensure your theme configuration uses valid color values</li>
-            <li>• Check that the chatbot ID matches your configuration</li>
-            <li>• For CORS issues, ensure your domain is allowed to access the widget</li>
-          </ul>
         </div>
       </div>
     </div>
